@@ -19,7 +19,7 @@ imageList = [
 ]
 
 nodeUrnBase = "urn:publicid:IDN+utah.cloudlab.us+node+"
-nodeList = ["amd272", "amd274", "amd276", "amd279", "amd280"]
+nodeList = ["amd272", "amd274", "amd275", "amd276", "amd278", "amd279", "amd280"]
 
 # Do not change these unless you change the setup scripts too.
 nfsServerName = "nfs"
