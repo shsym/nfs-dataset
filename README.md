@@ -2,7 +2,7 @@
 setup MIND/fastswap/GAM servers on Cloudlab.
 
 # usage
-## *Copying VM images and traces will take some time (up to a few hours)*
+## *The following commands will copy VM images and traces so it will take some time (up to a few hours)*
 
 for CN:
 ```
