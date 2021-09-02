@@ -14,6 +14,15 @@ syss="mind gam fastswap"
 
 
 #localize vm images
+echo "localizing vm keys"
+sudo cp ${nfs_dir}vm_keys/id_rsa_for_vm ~/.ssh/key_for_vm
+sudo cp ${nfs_dir}vm_keys/id_rsa_for_vm.pub ~/.ssh/key_for_vm.pub
+sudo chown $(whoami) ~/.ssh/key_for_vm
+sudo chgrp mind-disagg-PG0 ~/.ssh/key_for_vm
+sudo chown $(whoami) ~/.ssh/key_for_vm.pub
+sudo chgrp mind-disagg-PG0 ~/.ssh/key_for_vm.pub
+
+
 echo "localizing vm images"
 sudo mkdir -p ${vm_dir}
 if [ ${vm_type} == "MN" ]; then
