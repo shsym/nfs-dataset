@@ -15,13 +15,11 @@ request = pc.makeRequestRSpec()
 
 # Only Ubuntu images supported.
 imageList = [
-    ('urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU20-64-STD', 'UBUNTU 20.04'),
     ('urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU18-64-STD', 'UBUNTU 18.04'),
-    ('urn:publicid:IDN+emulab.net+image+emulab-ops//UBUNTU16-64-STD', 'UBUNTU 16.04'),
-    ('urn:publicid:IDN+emulab.net+image+emulab-ops//CENTOS7-64-STD', 'CENTOS 7'),
 ]
 
-nodeList = ["amd72", "amd74", "amd76", "amd79", "amd80"]
+nodeUrnBase = "urn:publicid:IDN+utah.cloudlab.us+node+"
+nodeList = ["amd272", "amd274", "amd276", "amd279", "amd280"]
 
 # Do not change these unless you change the setup scripts too.
 nfsServerName = "nfs"
@@ -29,16 +27,13 @@ nfsLanName    = "nfsLan"
 nfsDirectory  = "/nfs"
 
 # Number of NFS clients (there is always a server)
-pc.defineParameter("clientCount", "Number of NFS clients",
-                   portal.ParameterType.INTEGER, 2)
-
 pc.defineParameter("dataset", "Your dataset URN",
                    portal.ParameterType.STRING,
                    "urn:publicid:IDN+utah.cloudlab.us:mind-disagg-pg0+stdataset+mind_memory_accesses")
 
 pc.defineParameter("osImage", "Select OS image",
                    portal.ParameterType.IMAGE,
-                   imageList[1], imageList)
+                   imageList[0], imageList)
 
 pc.defineParameter("localStorageSize", "local storage size",
                    portal.ParameterType.STRING, "0")
@@ -95,28 +90,16 @@ MINDsw.hardware_type = params.phystype
 '''
 
 # The NFS clients, also attached to the NFS lan.
-for i in range(1, params.clientCount+1):
-    node = request.RawPC(nodeList[i - 1])
-    node.hardware_type = 'c6525-100g'
+for i, node_id in enumerate(nodeList):
+    node = request.RawPC(node_id)
+    # specific node
+    node.component_id = nodeUrnBase + node_id
     node.disk_image = params.osImage
     mybs = node.Blockstore("mybs%d" % i, "/mydata")
     mybs.size = params.localStorageSize
     nfsLan.addInterface(node.addInterface())
-    '''
-    #mind net
-    MINDswiface = MINDsw.addInterface()
-    MINDnodeiface = node.addInterface()
-    iparr = list(params.MINDNet.split("."))
-    iparr[-1] = str(int(iparr[-1]) + i)
-    ipstr = ".".join(iparr)
-    MINDnodeiface.addAddress(pg.IPv4Address(ipstr, params.MINDNetMask))
-    MINDlink = request.L1Link("MINDlink%d" % i)
-    MINDlink.addInterface(MINDnodeiface)
-    MINDlink.addInterface(MINDswiface)
-    '''
     # Initialization script for the clients
     startCmd = "sudo /bin/bash /local/repository/nfs-client.sh"
-    #startCmd = "sudo /bin/bash /local/repository/nfs-client.sh && sudo chmod +x /local/repository/start_CN_server.sh && sudo echo Y | /local/repository/start_CN_server.sh %d %d" % (i * 2 - 1, i * 2)
     node.addService(pg.Execute(shell="sh", command=startCmd))
     pass
 
